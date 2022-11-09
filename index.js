@@ -29,7 +29,7 @@ async function run() {
             const size = parseInt(req.query.size)
             const query = {}
             const cursor = productCollection.find(query)
-            const books = await cursor.limit(size).toArray()
+            const books = await cursor.limit(size).sort({ _id: -1 }).toArray()
             const count = await productCollection.estimatedDocumentCount()
             res.send({ count, books })
         })
@@ -40,6 +40,8 @@ async function run() {
             const user = await productCollection.findOne(query)
             res.send(user)
         })
+
+        
 
 
         app.get('/review/:id', async (req, res) => {
@@ -54,10 +56,16 @@ async function run() {
 
         app.get('/myReview', async (req, res) => {
             const query = req.query.email
-            const allReviews = await reviewConnection.find({}).toArray()
+            const allReviews = await reviewConnection.find({}).sort({ _id: -1 }).toArray()
             const myReview = allReviews.filter(item => item?.user?.email === query)
             res.send(myReview)
 
+        })
+
+        app.post('/book', async (req, res) => {
+            const order = req.body
+            const result = await productCollection.insertOne(order)
+            res.send(result)
         })
 
 
@@ -65,7 +73,6 @@ async function run() {
 
         app.post('/review', async (req, res) => {
             const order = req.body
-            // console.log(order);
             const result = await reviewConnection.insertOne(order)
             res.send(result)
         })
