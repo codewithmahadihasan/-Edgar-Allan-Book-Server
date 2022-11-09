@@ -16,9 +16,14 @@ const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
+
+
+
 async function run() {
     try {
         const productCollection = client.db('Edgar-Allan').collection('Books')
+        const reviewConnection = client.db('Edgar-Allan').collection('reviews')
+
 
         app.get('/book', async (req, res) => {
             const size = parseInt(req.query.size)
@@ -36,6 +41,23 @@ async function run() {
             res.send(user)
         })
 
+
+        app.get('/review/:id', async (req, res) => {
+            const id = req.params.id
+            const query = {
+                postid: id
+            }
+            const postid = await reviewConnection.find(query)
+            const books = await postid.toArray()
+            res.send(books)
+        })
+
+        app.post('/review', async (req, res) => {
+            const order = req.body
+            // console.log(order);
+            const result = await reviewConnection.insertOne(order)
+            res.send(result)
+        })
 
     }
     finally {
