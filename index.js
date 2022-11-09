@@ -47,10 +47,21 @@ async function run() {
             const query = {
                 postid: id
             }
-            const postid = await reviewConnection.find(query)
+            const postid = reviewConnection.find(query)
             const books = await postid.toArray()
             res.send(books)
         })
+
+        app.get('/myReview', async (req, res) => {
+            const query = req.query.email
+            const allReviews = await reviewConnection.find({}).toArray()
+            const myReview = allReviews.filter(item => item?.user?.email === query)
+            res.send(myReview)
+
+        })
+
+
+
 
         app.post('/review', async (req, res) => {
             const order = req.body
