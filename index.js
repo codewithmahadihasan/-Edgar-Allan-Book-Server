@@ -2,8 +2,8 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-require('dotenv').config()
 var jwt = require('jsonwebtoken');
+
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -96,14 +96,26 @@ async function run() {
         })
 
 
-
-
         app.post('/review', async (req, res) => {
             const order = req.body
             const result = await reviewConnection.insertOne(order)
             res.send(result)
         })
 
+        app.put('/review/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const review = req.body.review
+            const options = { upsert: true };
+            const updateUser = {
+                $set: {
+                    review
+                },
+
+            };
+            const result = await reviewConnection.updateOne(query, updateUser, options);
+            res.send(result)
+        })
 
         app.delete('/review/:id', async (req, res) => {
             const id = req.params.id
